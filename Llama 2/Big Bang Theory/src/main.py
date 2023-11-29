@@ -37,31 +37,12 @@ def main():
             chat_choice = input("Choose your option (a/b): ")
 
             if chat_choice.lower() == 'a' and trained_model is not None:
-                print("Starting chat with custom trained bot. Type 'quit' to exit.")
-                # base_model = AutoModelForCausalLM.from_pretrained(
-                #     config.model_name,
-                #     low_cpu_mem_usage=True,
-                #     return_dict=True,
-                #     torch_dtype=torch.float16,
-                #     device_map=config.device_map,
-                # )
-                model = PeftModel.from_pretrained(trained_model, config.new_model)
-                model = model.merge_and_unload()
-
-                chat_with_bot.chat_with_bot(model, trained_tokenizer)
+                chat_with_bot.chat_with_bot(config.model_name)
             elif chat_choice.lower() == 'a':
                 print("No custom trained model available. Please train a model first (Option 1).")
-
             elif chat_choice.lower() == 'b':
                 print("Loading pre-existing fine-tuned model...")
-                fine_tuned_model = AutoModelForCausalLM.from_pretrained(config.eval_model, device_map=config.device_map)
-                print("Starting chat with pre-existing fine-tuned bot. Type 'quit' to exit.")
-
-                fine_tuned_tokenizer = AutoTokenizer.from_pretrained(config.eval_model, trust_remote_code=True)
-                fine_tuned_tokenizer.pad_token = fine_tuned_tokenizer.eos_token
-                fine_tuned_tokenizer.padding_side = "right"
-
-                chat_with_bot.chat_with_bot(fine_tuned_model, fine_tuned_tokenizer)
+                chat_with_bot.chat_with_bot(config.eval_model)
             else:
                 print("Invalid choice. Please enter 'a' or 'b'.")
 
@@ -76,26 +57,20 @@ def main():
             chat_choice = input("Choose your option (a/b): ")
 
             if chat_choice.lower() == 'a' and trained_model is not None:
-                perplexity = evaluate.calculate_perplexity(trained_model, trained_tokenizer, test_dataset, device)
+                perplexity = evaluate.calculate_perplexity(config.model_name, test_dataset, device)
                 print("Perplexity:", perplexity)
 
-                bleu_score = evaluate.calculate_bleu_score(trained_model, trained_tokenizer, test_dataset, device)
+                bleu_score = evaluate.calculate_bleu_score(config.model_name, test_dataset, device)
                 print("BLEU score:", bleu_score)
 
             elif chat_choice.lower() == 'a':
                 print("No custom trained model available. Please train a model first (Option 1).")
 
             elif chat_choice.lower() == 'b':
-
-                fine_tuned_model = AutoModelForCausalLM.from_pretrained(config.eval_model, device_map=config.device_map)
-                fine_tuned_tokenizer = AutoTokenizer.from_pretrained(config.eval_model, trust_remote_code=True)
-                fine_tuned_tokenizer.pad_token = fine_tuned_tokenizer.eos_token
-                fine_tuned_tokenizer.padding_side = "right"
-
-                perplexity = evaluate.calculate_perplexity(fine_tuned_model, fine_tuned_tokenizer, test_dataset, device)
+                perplexity = evaluate.calculate_perplexity(config.eval_model, test_dataset, device)
                 print("Perplexity:", perplexity)
 
-                bleu_score = evaluate.calculate_bleu_score(fine_tuned_model, fine_tuned_tokenizer, test_dataset, device)
+                bleu_score = evaluate.calculate_bleu_score(config.eval_model, test_dataset, device)
                 print("BLEU score:", bleu_score)
 
         elif choice == '4':
